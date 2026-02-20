@@ -1,7 +1,13 @@
 #!/bin/sh
-# Helper utility for v4l2.
-#
 # Create/list/delete v4l2 devices, stream images, and ffmpeg streams.
+#
+# Dependencies:
+# v4l2loopback-utils
+# v4l2loopback-dkms (for debian 13, might need version from unstable/testing)
+# imagemagick
+# ffmpeg
+# util-linux
+# awk (tested with gawk, but other implementations should world)
 
 # TODO: simplify documentation (subject + verb semantics?)
 usage() {
@@ -13,7 +19,7 @@ module: interact with v4l2 kernel module
     unload: unload the kernel module (requires root)
 
 auto: manage many at once
-    create [NUM]: create many devices+iamges+streams
+    create [NUM]: create many devices+images+streams
     delete-all: delete all devices+images+streams
 
 device: manage v4l2 video device
@@ -178,7 +184,7 @@ _run_video() {
     touch "$LOG_FILE"
 
     # spawn ffmpeg, move to background
-    ffmpeg -hide_banner -nostats -loop 1 -re -i "$IMAGE_PATH" -vf format=yuv420p -f v4l2 "$DEVICE" > "$LOG_FILE" 2>&1 &
+    ffmpeg -hide_banner -nostats -loop 1 -framerate 1 -re -i "$IMAGE_PATH" -vf format=yuv420p -f v4l2 "$DEVICE" > "$LOG_FILE" 2>&1 &
     # dump ffmpeg's PID to file
     echo $! > "$(pid_file "$NAME")"
     # bring ffmpeg back to foreground
@@ -272,7 +278,7 @@ auto_destroy() {
     kill_all_video
     sleep 0.5s # TODO: watch file or something instead of sleeping
     delete_all_devices
-    # TODO images
+    # TODO: images
 }
 
 missing_argument() {
@@ -298,7 +304,7 @@ command_delete_all() {
     [ "$1" = "delete-all" ] || [ "$1" = "kill-all" ] || [ "$1" = "destroy-all" ]
 }
 
-# TODO: refactor this tree of spaghetti, use getopt?
+# TODO: refactor this tree of spaghetti, maybe use getopt?
 if [ -z "$1" ]; then usage; exit; fi
 COMMAND="$1"; shift
 if [ "$COMMAND" = "help" ] || [ "$COMMAND" = "--help" ] || [ "$COMMAND" = "-h" ]; then
