@@ -7,7 +7,7 @@
 # imagemagick
 # ffmpeg
 # util-linux
-# awk (tested with gawk, but other implementations should world)
+# awk (tested with gawk, but other implementations should work)
 
 # TODO: simplify documentation (subject + verb semantics?)
 usage() {
