@@ -261,7 +261,10 @@ EOF
 
 # create many devices, images, and streams
 auto_create() {
-    NUM="$1"
+    NUM=3
+    if [ -n "$1" ]; then
+        NUM="$1"
+    fi
     STARTING_DEVICE=0
     for num in $(seq 0 "$((NUM - 1))"); do
         NAME="loopback$num"
